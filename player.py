@@ -199,9 +199,3 @@ class Player():
         """else:
             _, high = is_high(h)
             return "HIGH CARD", high, 1"""
-
-a = ['TD', '3S', '8S', '3D', '8H', '9D', '3C', 'AS']
-player = Player()
-player.set_cards(a)
-print(player.tuple_hand)
-print(player.evaluate_hand())
