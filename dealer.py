@@ -28,12 +28,3 @@ class Dealer():
     def inspect_players(self):
         for player in self.players:
             print(player.evaluate_hand())
-
-dealer = Dealer()
-dealer.new_game()
-dealer.add_player("test")
-dealer.add_player("test2")
-dealer.deal_cards()
-for player in dealer.players:
-    print(player.hand)
-dealer.inspect_players()
