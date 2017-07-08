@@ -10,6 +10,7 @@ for x in range(10):
     for player in dealer.players:
         print(player.hand)
     dealer.inspect_players()
+    print("\n")
     
 #windowSurface = pygame.display.set_mode((500, 400), 0, 32)
 
