@@ -2,18 +2,20 @@ from player import Player
 from random import shuffle
 
 
-class Dealer():
+class Dealer:
     def __init__(self):
         self.players = []
         self.cards = []
+        self.new_game()
 
     def new_game(self):
-        self.players = []
+        for player in self.players:
+            player.new_deal()
         self.cards = ['A♠', '2♠', '3♠', '4♠', '5♠', '6♠', '7♠', '8♠', '9♠', 'T♠', 'J♠', 'Q♠', 'K♠',
-                 'A♦', '2♦', '3♦', '4♦', '5♦', '6♦', '7♦', '8♦', '9♦', 'T♦', 'J♦', 'Q♦', 'K♦',
-                 'A♥', '2♥', '3♥', '4♥', '5♥', '6♥', '7♥', '8♥', '9♥', 'T♥', 'J♥', 'Q♥', 'K♥',
-                 'A♣', '2♣', '3♣', '4♣', '5♣', '6♣', '7♣', '8♣', '9♣', 'T♣', 'J♣', 'Q♣', 'K♣',
-                 'A✙', '2✙', '3✙', '4✙', '5✙', '6✙', '7✙', '8✙', '9✙', 'T✙', 'J✙', 'Q✙', 'K✙', ]  # 'Z⦿']
+                      'A♦', '2♦', '3♦', '4♦', '5♦', '6♦', '7♦', '8♦', '9♦', 'T♦', 'J♦', 'Q♦', 'K♦',
+                      'A♥', '2♥', '3♥', '4♥', '5♥', '6♥', '7♥', '8♥', '9♥', 'T♥', 'J♥', 'Q♥', 'K♥',
+                      'A♣', '2♣', '3♣', '4♣', '5♣', '6♣', '7♣', '8♣', '9♣', 'T♣', 'J♣', 'Q♣', 'K♣',
+                      'A✙', '2✙', '3✙', '4✙', '5✙', '6✙', '7✙', '8✙', '9✙', 'T✙', 'J✙', 'Q✙', 'K✙', ]  # 'Z⦿']
 
     def add_player(self, player_name):
         self.players.append(Player(player_name))
