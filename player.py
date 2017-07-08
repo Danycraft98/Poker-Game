@@ -1,16 +1,23 @@
 from collections import Counter
 
-nums = {'2':2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, 'T': 10, 'J': 11, 'Q': 12, 'K': 13, "A": 14}
+nums = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, 'T': 10, 'J': 11, 'Q': 12, 'K': 13, "A": 14}
 
-class Player():
-    def __init__(self):
+
+class Player:
+    def __init__(self, name):
+        self.name = name
+        self.hand = []
+        self.tuple_hand = []
+
+    def new_deal(self):
         self.hand = []
         self.tuple_hand = []
 
     def set_cards(self, hand):
-        self.hand = hand
-        for card in self.hand:
-            self.tuple_hand.append((nums[card[0]], card[1]))
+        self.hand.append(hand)
+        if len(self.hand) == 8:
+            for card in self.hand:
+                self.tuple_hand.append((nums[card[0]], card[1]))
 
     @staticmethod
     def most_frequent(lst):
@@ -43,8 +50,7 @@ class Player():
             if self.is_flush(rh) and rh[-1][0] == 10:
                 rh = self.is_flush(rh)[1]
                 return True, rh
-        else:
-            return False, []
+        return False, []
 
     def is_straight(self):
         self.tuple_hand.sort(key=lambda card: card[0], reverse=True)
@@ -115,86 +121,80 @@ class Player():
             return True, rh
         return False, []
 
-
-    """def is_high(h):
+    def is_high(h):
         #h = [x[:-1] for x in convert_to_nums(h)]
         a = [x[0] for x in h]
         a = max(h, key=int)
         # ^This is for finding a largest number for Strings
-        return True, (a)
-
+        return True, a
 
     #    return list(sorted([int(x[:-1]) for x in convert_to_nums(h)], reverse =True))[0]
 
-    ##def Yes_Z(suits, numbers, i):
-    ##    print (i[1])
-    ##    if i[1] == 4:
-    ##        print ("Five_of_Kinds")
-    ##    elif i[1] == 3:
-    ##        print ("Four_of_Kinds")
-    ##    elif hand == range(min(hand), max(hand)+1):
-    ##        print ("Straight")
-    ##
-    ##    else:
-    ##        print ("No Pair")"""
+    # def Yes_Z(suits, numbers, i):
+    #    print (i[1])
+    #    if i[1] == 4:
+    #        print ("Five_of_Kinds")
+    #    elif i[1] == 3:
+    #        print ("Four_of_Kinds")
+    #    elif hand == range(min(hand), max(hand)+1):
+    #        print ("Straight")
+    #
+    #    else:
+    #        print ("No Pair")
 
     def evaluate_hand(self):
-        royal_hand = self.is_royal()
-        if royal_hand[0]:
-            return "ROYAL FLUSH", royal_hand[1], 15
+        is_royal, royal_hand = self.is_royal()
+        if is_royal:
+            return "ROYAL FLUSH", royal_hand, 15
 
-        five_of_a_kind = self.is_num_of_a_kind(5)
-        if five_of_a_kind[0]:
-            return "FIVE OF A KIND", five_of_a_kind[1], 13
+        is_five_of_a_kind, five_of_a_kind = self.is_num_of_a_kind(5)
+        if is_five_of_a_kind:
+            return "FIVE OF A KIND", five_of_a_kind, 13
 
-        straight_hand = self.is_straight()
-        flush_hand = self.is_flush()
-        if straight_hand[0] and flush_hand[0]:
-            a = (straight_hand[1])
-
-            if a == (2, 3, 4, 5, 14):
-                return "BACK STRAIGHT FLUSH", straight_hand[1], 14
+        is_straight, straight_hand = self.is_straight()
+        is_flush, flush_hand = self.is_flush()
+        if is_straight and is_flush:
+            if straight_hand == (2, 3, 4, 5, 14):
+                return "BACK STRAIGHT FLUSH", straight_hand, 14
             else:
-                return "STRAIGHT FLUSH", straight_hand[1], 12
+                return "STRAIGHT FLUSH", straight_hand, 12
 
-        four_of_a_kind = self.is_num_of_a_kind(4)
-        if four_of_a_kind[0]:
-            return "FOUR OF A KIND", four_of_a_kind[1], 11
+        is_four_of_a_kind, four_of_a_kind = self.is_num_of_a_kind(4)
+        if is_four_of_a_kind:
+            return "FOUR OF A KIND", four_of_a_kind, 11
 
-        if flush_hand[0]:
-            _, flush = self.is_flush()
-            return "FLUSH", flush, 9
+        if is_flush:
+            return "FLUSH", flush_hand, 9
 
-        house_hand = self.is_house()
-        if house_hand[0]:
-            most_repeats = self.most_frequent([x[1] for x in house_hand[1]])[1]
+        is_house, house_hand = self.is_house()
+        if is_house:
+            most_repeats = self.most_frequent([x[1] for x in house_hand])[1]
             if most_repeats == 1:
-                return True, house_hand[1], "FULL House", 10
+                return True, house_hand, "FULL House", 10
             else:
-                return "HOUSE", house_hand[1], 8
+                return "HOUSE", house_hand, 8
 
-        if straight_hand[0]:
-            a = (straight_hand[1])
-            if a == {10, 11, 12, 13, 14}:
-                return "MOUNTAIN", straight_hand[1], 7
+        if is_straight:
+            if straight_hand == {10, 11, 12, 13, 14}:
+                return "MOUNTAIN", straight_hand, 7
 
-            elif a == {2, 3, 4, 5, 14}:
+            elif straight_hand == {2, 3, 4, 5, 14}:
                 return "BACK STRAIGHT", straight_hand[1], 6
 
             else:
                 return "STRAIGHT", straight_hand[1], 5
 
-        three_of_a_kind = self.is_num_of_a_kind(3)
-        if three_of_a_kind[0]:
-            return "THREE OF A KIND", three_of_a_kind[1], 4
+        is_three_of_a_kind, three_of_a_kind = self.is_num_of_a_kind(3)
+        if is_three_of_a_kind:
+            return "THREE OF A KIND", three_of_a_kind, 4
 
-        two_pair = self.is_two_pair()
-        if two_pair[0]:
-            return "TWO PAIR", two_pair[1], 3
+        is_two_pair, two_pair = self.is_two_pair()
+        if is_two_pair:
+            return "TWO PAIR", two_pair, 3
 
-        pair = self.is_pair()
-        if pair[0]:
-            return "PAIR", pair[1], 2
+        is_pair, pair = self.is_pair()
+        if is_pair:
+            return "PAIR", pair, 2
 
         """else:
             _, high = is_high(h)
