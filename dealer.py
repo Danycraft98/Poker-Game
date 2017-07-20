@@ -22,7 +22,7 @@ class Dealer:
 
     def deal_cards(self):
         shuffle(self.cards)
-        for card_num in range(8):
+        for card_num in range(7):
             for player in self.players:
                 card = self.cards.pop()
                 player.set_cards(card)
