@@ -7,26 +7,17 @@ class Player:
     def __init__(self, name):
         self.name = name
         self.hand = []
-        self._tuple_hand = []
-        self.is_set = False
-        self.maximum = 0
+        self.tuple_hand = []
 
     def new_deal(self):
-        self.is_set = False
         self.hand = []
-        self._tuple_hand = []
-        self.maximum = 0
+        self.tuple_hand = []
 
     def set_cards(self, hand):
-        self.hand.extend(hand)
-        if len(self.hand) == 8:
+        self.hand.append(hand)
+        if len(self.hand) == 7:
             for card in self.hand:
-                self._tuple_hand.append((nums[card[0]], card[1]))
-        self._tuple_hand.sort(key=lambda card: card[0], reverse=True)
-        self.maximum = self._tuple_hand[0][0]
-
-    def has_sublist(self, sublist):
-        return len(list(set(filter(lambda x: x in sublist, self.get_number(self.hand))))) == 5
+                self.tuple_hand.append((nums[card[0]], card[1]))
 
     @staticmethod
     def most_frequent(lst):
@@ -54,16 +45,37 @@ class Player:
 
     def is_royal(self):
         s = self.is_straight()
+        rh = s[1]
         if s[0]:
-            is_flush, rh = self.is_flush(s[1])
-            if is_flush and rh[-1][0] == 10:
+            if self.is_flush(rh) and rh[-1][0] == 10:
+                rh = self.is_flush(rh)[1]
                 return True, rh
         return False, []
 
-    def is_flush(self, hand=[]):
-        if len(hand) == 0:
-            hand.extend(self._tuple_hand)
-        sorted(hand, key=lambda card: card[1], reverse=True)
+    def is_straight(self):
+        self.tuple_hand.sort(key=lambda card: card[0], reverse=True)
+        maximum = self.tuple_hand[0][0]
+        rh = []
+        index, temp_index = 0, maximum
+
+        while maximum > 5 and index < 7:
+            if self.tuple_hand[index][0] > maximum - 5 and (self.tuple_hand[index][0] == temp_index or self.tuple_hand[index][0] == temp_index + 1):
+                rh.append(self.tuple_hand[index])
+                temp_index -= 1
+
+            if self.tuple_hand[index] == self.tuple_hand[-1]:
+                if len(rh) >= 5:
+                    return True, rh[:5]
+                rh = []
+                maximum -= 1
+                temp_index = maximum
+            index += 1
+        return False, []
+
+    def is_flush(self, hand=None):
+        if hand is None:
+            hand = self.tuple_hand
+        sorted(hand, key=lambda card: card[0], reverse=True)
         suit_counter = self.most_frequent(self.get_suits(hand))
         rh = list(item for item in hand if (suit_counter[0]) in item)[:5]
 
@@ -72,29 +84,10 @@ class Player:
         else:
             return False, []
 
-    def is_straight(self):
-        self._tuple_hand.sort(key=lambda card: card[0], reverse=True)
-        rh = []
-        index, temp_index = 0, self.maximum
-
-        if all(x in self.get_number(self.hand) for x in [2, 3, 4, 5, 14]):
-            return True, rh
-
-        while self.maximum > 5 and index < 8:
-            if self.maximum > self._tuple_hand[index][0] > (self.maximum - 5):
-                rh.append(self._tuple_hand[index])
-
-            if index == 7 and len(rh) >= 5:
-                return True, rh
-            elif index == 7:
-                self.maximum -= 1
-                index = 0
-            index += 1
-        return False, []
-
     def is_num_of_a_kind(self, num):
         kind_counter = self.most_frequent(self.get_number(self.hand))
-        rh = list(item for item in self._tuple_hand if (kind_counter[0]) in item)[:5]
+        rh = list(item for item in self.tuple_hand if (kind_counter[0]) in item)[:5]
+
 
         if kind_counter[1] == num:
             return True, rh
@@ -107,8 +100,8 @@ class Player:
         pair = self.second_most_frequent(values)
 
         if three_of_a_kind[1] == 3 and pair[1] == 2:
-            rh = [item for item in self._tuple_hand if (three_of_a_kind[0]) in item] + \
-                 [item for item in self._tuple_hand if (pair[0]) in item]
+            rh = [item for item in self.tuple_hand if (three_of_a_kind[0]) in item] + \
+                 [item for item in self.tuple_hand if (pair[0]) in item]
             return True, rh
         return False, []
 
@@ -118,14 +111,15 @@ class Player:
         pair2 = self.second_most_frequent(values)
 
         if pair1[1] == 2 and pair2[1] == 2:
-            rh = list(item for item in self._tuple_hand if (pair1[0]) in item or (pair2[0]) in item)[:5]
+    
+            rh = list(item for item in self.tuple_hand if (pair1[0]) in item or (pair2[0]) in item)[:5]
             return True, rh
         return False, []
 
     def is_pair(self):
         pair = self.most_frequent(self.get_number(self.hand))
         if pair[1] == 2:
-            rh = list(item for item in self._tuple_hand if (pair[0]) in item)[:5]
+            rh = list(item for item in self.tuple_hand if (pair[0]) in item)[:5]
             return True, rh
         return False, []
 
@@ -151,59 +145,59 @@ class Player:
     #        print ("No Pair")
 
     def evaluate_hand(self):
-        self.is_set, royal_hand = self.is_royal()
-        if self.is_set:
-            return "ROYAL FLUSH", royal_hand, 15
+        royal_hand = self.is_royal()
+        if royal_hand[0] == {10, 11, 12, 13, 14}:
+            return "ROYAL STRAIGHT FLUSH", royal_hand, 15
 
-        self.is_set, five_of_a_kind = self.is_num_of_a_kind(5)
-        if self.is_set:
+        is_five_of_a_kind, five_of_a_kind = self.is_num_of_a_kind(5)
+        if is_five_of_a_kind:
             return "FIVE OF A KIND", five_of_a_kind, 13
 
-        self.is_set, four_of_a_kind = self.is_num_of_a_kind(4)
-        if self.is_set:
-            return "FOUR OF A KIND", four_of_a_kind, 11
-
+        is_straight, straight_hand = self.is_straight()
         is_flush, flush_hand = self.is_flush()
-        if is_flush:
-            is_straight, straight_hand = self.is_straight()
-            if is_straight:
-                if self.has_sublist([14, 5, 4, 3, 2]):
-                    return "BACK STRAIGHT FLUSH", flush_hand, 14
-                elif all(flush_hand[i][0] == (flush_hand[i + 1][0] + 1) for i in range(len(flush_hand) - 1)):
-                    return "STRAIGHT FLUSH", flush_hand, 12
-            return "FLUSH", flush_hand, 9
+        if is_straight and is_flush:
+            if straight_hand == (2, 3, 4, 5, 14):
+                return "BACK STRAIGHT FLUSH", straight_hand, 14
+            else:
+                return "STRAIGHT FLUSH", straight_hand, 12
 
-        self.is_set, house_hand = self.is_house()
-        if self.is_set:
+        is_four_of_a_kind, four_of_a_kind = self.is_num_of_a_kind(4)
+        if is_four_of_a_kind:
+            return "FOUR OF A KIND", four_of_a_kind, 10
+
+        if is_flush:
+            return "FLUSH", flush_hand, 8
+
+        is_house, house_hand = self.is_house()
+        if is_house:
             most_repeats = self.most_frequent([x[1] for x in house_hand])[1]
             if most_repeats == 1:
-                return True, house_hand, "FULL House", 10
+                return "FULL HOUSE", house_hand, 11
             else:
-                return "HOUSE", house_hand, 8
+                return "HOUSE", house_hand, 9
 
-        is_straight, straight_hand = self.is_straight()
+        is_three_of_a_kind, three_of_a_kind = self.is_num_of_a_kind(3)
+        if is_three_of_a_kind:
+            return "THREE OF A KIND", three_of_a_kind, 7
+        
         if is_straight:
-            if self.has_sublist([10, 11, 12, 13, 14]):
-                return "MOUNTAIN", straight_hand[:5], 7
+            if straight_hand == {10, 11, 12, 13, 14}:
+                return "MOUNTAIN", straight_hand, 6
 
-            elif self.has_sublist([2, 3, 4, 5, 14]):
-                return "BACK STRAIGHT", straight_hand, 6
+            elif straight_hand == {2, 3, 4, 5, 14}:
+                return "BACK STRAIGHT", straight_hand[1], 5
 
             else:
-                return "STRAIGHT", straight_hand, 5
+                return "STRAIGHT", straight_hand[1], 4
 
-        #self.is_set, three_of_a_kind = self.is_num_of_a_kind(3)
-        #if self.is_set:
-        #    return "THREE OF A KIND", three_of_a_kind, 4
-
-        """self.is_set, two_pair = self.is_two_pair()
-        if self.is_set:
+        is_two_pair, two_pair = self.is_two_pair()
+        if is_two_pair:
             return "TWO PAIR", two_pair, 3
 
-        self.is_set, pair = self.is_pair()
-        if self.is_set:
-            return "PAIR", pair, 2
+        is_pair, pair = self.is_pair()
+        if is_pair:
+            return "ONE PAIR", pair, 2
 
-        else:
+        """else:
             _, high = is_high(h)
             return "HIGH CARD", high, 1"""
