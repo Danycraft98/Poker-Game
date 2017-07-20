@@ -132,8 +132,8 @@ class Player:
         return False, []
 
     def is_high(self):
-        h = list(item for item in self.tuple_hand)
-        rh = sorted((h), reverse=True)[:5]
+        r = list(item for item in self.tuple_hand)
+        rh = sorted((r), reverse=True)[:5]
 
         return True, rh
 
