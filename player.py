@@ -173,9 +173,6 @@ class Player:
         if is_four_of_a_kind:
             return "FOUR OF A KIND", four_of_a_kind, 11
 
-        if is_flush:
-            return "FLUSH", flush_hand, 8
-
         is_house, house_hand = self.is_house()
         if is_house:
             most_repeats = self.most_frequent([x[1] for x in house_hand])[1]
@@ -183,6 +180,9 @@ class Player:
                 return "FULL HOUSE", house_hand, 10
             else:
                 return "HOUSE", house_hand, 9
+            
+        if is_flush:
+            return "FLUSH", flush_hand, 8
 
         is_three_of_a_kind, three_of_a_kind = self.is_num_of_a_kind(3)
         if is_three_of_a_kind:
