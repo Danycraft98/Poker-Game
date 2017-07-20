@@ -87,8 +87,11 @@ class Player:
     def is_num_of_a_kind(self, num):
         kind_counter = self.most_frequent(self.get_number(self.hand))
         rh = list(item for item in self.tuple_hand if (kind_counter[0]) in item)[:5]
-
-
+        
+        c = [item for item in self.tuple_hand if (rh[0][0]) not in item]
+        d = sorted((c), reverse=True)[:(5 - len(rh))]
+        rh = rh + d
+        
         if kind_counter[1] == num:
             return True, rh
         else:
@@ -111,15 +114,20 @@ class Player:
         pair2 = self.second_most_frequent(values)
 
         if pair1[1] == 2 and pair2[1] == 2:
-    
+            c = [item for item in self.tuple_hand if (pair1[0]) or (pair2[0]) not in item]
+            d = sorted((c), reverse=True)[:1]  
             rh = list(item for item in self.tuple_hand if (pair1[0]) in item or (pair2[0]) in item)[:5]
+            rh = rh + d
             return True, rh
         return False, []
 
     def is_pair(self):
         pair = self.most_frequent(self.get_number(self.hand))
         if pair[1] == 2:
+            c = [item for item in self.tuple_hand if (pair[0]) not in item]
+            d = sorted((c), reverse=True)[:3]
             rh = list(item for item in self.tuple_hand if (pair[0]) in item)[:5]
+            rh = rh + d
             return True, rh
         return False, []
 
@@ -163,7 +171,7 @@ class Player:
 
         is_four_of_a_kind, four_of_a_kind = self.is_num_of_a_kind(4)
         if is_four_of_a_kind:
-            return "FOUR OF A KIND", four_of_a_kind, 10
+            return "FOUR OF A KIND", four_of_a_kind, 11
 
         if is_flush:
             return "FLUSH", flush_hand, 8
@@ -172,7 +180,7 @@ class Player:
         if is_house:
             most_repeats = self.most_frequent([x[1] for x in house_hand])[1]
             if most_repeats == 1:
-                return "FULL HOUSE", house_hand, 11
+                return "FULL HOUSE", house_hand, 10
             else:
                 return "HOUSE", house_hand, 9
 
