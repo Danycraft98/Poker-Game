@@ -114,7 +114,7 @@ class Player:
         pair2 = self.second_most_frequent(values)
 
         if pair1[1] == 2 and pair2[1] == 2:
-            c = [item for item in self.tuple_hand if (pair1[0]) or (pair2[0]) not in item]
+            c = [item for item in self.tuple_hand if (pair1[0][0]) or (pair2[0][0]) not in item]
             d = sorted((c), reverse=True)[:1]  
             rh = list(item for item in self.tuple_hand if (pair1[0]) in item or (pair2[0]) in item)[:5]
             rh = rh + d
@@ -124,7 +124,7 @@ class Player:
     def is_pair(self):
         pair = self.most_frequent(self.get_number(self.hand))
         if pair[1] == 2:
-            c = [item for item in self.tuple_hand if (pair[0]) not in item]
+            c = [item for item in self.tuple_hand if (pair[0][0]) not in item]
             d = sorted((c), reverse=True)[:3]
             rh = list(item for item in self.tuple_hand if (pair[0]) in item)[:5]
             rh = rh + d
