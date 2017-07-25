@@ -167,22 +167,21 @@ class Player:
         return False, []
 
     def is_straight(self):
-        self.tuple_hand.sort(key=lambda card: card[0], reverse=True)
-        maximum = self.tuple_hand[0][0]
-        rh = []
-        index, temp_index = 0, maximum
+        self._tuple_hand.sort(key=lambda card: card[0], reverse=True)
+        index, rh = 0, []
 
-        while maximum > 5 and index < 7:
-            if self.tuple_hand[index][0] > maximum - 5 and (self.tuple_hand[index][0] == temp_index or self.tuple_hand[index][0] == temp_index + 1):
-                rh.append(self.tuple_hand[index])
-                temp_index -= 1
+        if all(x in self.get_number(self.hand) for x in [2, 3, 4, 5, 14]):
+            return True, rh
 
-            if self.tuple_hand[index] == self.tuple_hand[-1]:
-                if len(rh) >= 5:
-                    return True, rh[:5]
-                rh = []
-                maximum -= 1
-                temp_index = maximum
+        while self.maximum > 5 and index < 8:
+            if self.maximum > self._tuple_hand[index][0] > (self.maximum - 5):
+                rh.append(self._tuple_hand[index])
+
+            if index == 7 and len(rh) >= 5:
+                return True, rh
+            elif index == 7:
+                self.maximum -= 1
+                index = 0
             index += 1
         return False, []
 
