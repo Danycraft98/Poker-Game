@@ -167,23 +167,51 @@ class Player:
         return False, []
 
     def is_straight(self):
-        self._tuple_hand.sort(key=lambda card: card[0], reverse=True)
-        index, rh = 0, []
 
+        rh = []
+        
         if all(x in self.get_number(self.hand) for x in [2, 3, 4, 5, 14]):
             return True, rh
+        
+        d = (sorted(set([x[0] for x in self.tuple_hand])))
 
-        while self.maximum > 5 and index < 8:
-            if self.maximum > self._tuple_hand[index][0] > (self.maximum - 5):
-                rh.append(self._tuple_hand[index])
+        result = []
+        for n in range(0, 11):
 
-            if index == 7 and len(rh) >= 5:
-                return True, rh
-            elif index == 7:
-                self.maximum -= 1
-                index = 0
-            index += 1
+            temp_set = list(set(range(n, n+5)))
+            if set(temp_set).issubset(d) is True:
+                result = (temp_set)
+            else:
+                return False, []
+            
+        a = tuple(result)
+
+        for x in a:
+            c = [item for item in self.tuple_hand if (x) in item]
+            [thing] = c; ('(' +str(thing) + ')')
+            rh.append(thing)
+
+            return True, rh
         return False, []
+    
+  ##def is_straight(self):
+  ##      self._tuple_hand.sort(key=lambda card: card[0], reverse=True)
+  ##      index, rh = 0, []
+  ##
+  ##      if all(x in self.get_number(self.hand) for x in [2, 3, 4, 5, 14]):
+  ##          return True, rh
+  ##
+  ##      while self.maximum > 5 and index < 8:
+  ##          if self.maximum > self._tuple_hand[index][0] > (self.maximum - 5):
+  ##              rh.append(self._tuple_hand[index])
+  ##
+  ##          if index == 7 and len(rh) >= 5:
+  ##              return True, rh
+  ##          elif index == 7:
+  ##              self.maximum -= 1
+  ##              index = 0
+  ##          index += 1
+  ##      return False, []
 
     def is_flush(self, hand=None):
         if hand is None:
