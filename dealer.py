@@ -15,7 +15,7 @@ class Dealer:
                       'A♦', '2♦', '3♦', '4♦', '5♦', '6♦', '7♦', '8♦', '9♦', 'T♦', 'J♦', 'Q♦', 'K♦',
                       'A♥', '2♥', '3♥', '4♥', '5♥', '6♥', '7♥', '8♥', '9♥', 'T♥', 'J♥', 'Q♥', 'K♥',
                       'A♣', '2♣', '3♣', '4♣', '5♣', '6♣', '7♣', '8♣', '9♣', 'T♣', 'J♣', 'Q♣', 'K♣',
-                      'A✙', '2✙', '3✙', '4✙', '5✙', '6✙', '7✙', '8✙', '9✙', 'T✙', 'J✙', 'Q✙', 'K✙', ]  # 'Z⦿']
+                      'A✙', '2✙', '3✙', '4✙', '5✙', '6✙', '7✙', '8✙', '9✙', 'T✙', 'J✙', 'Q✙', 'K✙', 'Z⦿']
 
     def add_player(self, player_name):
         self.players.append(Player(player_name))
@@ -29,4 +29,4 @@ class Dealer:
 
     def inspect_players(self):
         for player in self.players:
-            print(player.evaluate_hand())
+                print (player.evaluate_hand())
