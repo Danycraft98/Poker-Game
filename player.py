@@ -43,6 +43,180 @@ class Player:
             rs.append(nums[card[0]])
         return rs
 
+    def is_top_straight_Z(self):
+        if ([x[0] for x in self.tuple_hand if (15) in x]):
+            list_without_15 = [item for item in self.tuple_hand if (15) not in item]
+            sorted(self.tuple_hand, key=lambda card: card[0], reverse=True)
+            potential_sf = self.most_frequent(self.get_suits(self.tuple_hand ))
+            
+            if potential_sf[1] >= 5:
+                potential_sf_hand_set = [item for item in list_without_15 if (potential_sf[0]) in item]
+                potential_sf_hand = sorted(set([x[0] for x in potential_sf_hand_set]))
+
+                rh = [] 
+                es = [11, 12, 13, 14]
+                bs = [2, 3, 4, 5, 14]
+
+
+                if (all(x in (potential_sf_hand) for x in es)) is True:
+                    
+                    for x in range (0, 4):
+                        true_hand = [item for item in potential_sf_hand_set if (es[x]) in item]
+                        rh.append(true_hand)
+
+                    rh = [val for sublist in rh for val in sublist]
+                    rh = rh + [(15, '⦿')]
+                    return True, rh
+                
+                if (all(x in (potential_sf_hand) for x in bs)) is True or sum(map(lambda x: x in potential_sf_hand, bs)) == 4:
+
+                    result = []
+                    
+                    for x in range (0, 5):
+                        true_hand = [item for item in potential_sf_hand_set if (bs[x]) in item]
+                        result.append(true_hand)
+
+
+                    last = [elem if elem else [('Z', '⦿')] for elem in result]
+                    rh = [val for sublist in last for val in sublist]
+                    return True, rh               
+
+                else:
+                    missing_numbers = [item for item in set(range(1, 15)) if item not in potential_sf_hand]
+                    list_of_potential_straights = []
+                    list_of_potential_straight_hands = []
+                    list_of_straight_sets = []
+
+                    for x in reversed(range(len(missing_numbers))):
+                        missing_individual_numbers = [(missing_numbers[x])]
+                        potential_straights = list(sorted(missing_individual_numbers + potential_sf_hand))
+                        list_of_potential_straights.append(potential_straights)
+
+                    for list_of_potential_straights in list_of_potential_straights:
+                        for start_index in range(len(list_of_potential_straights) - 4):
+                            end_index = start_index + 5
+                            sublist = list_of_potential_straights[start_index:end_index]
+                            list_of_potential_straight_hands.append(sublist)
+                    
+                    for n in range(2, 11):
+                        straight_set = list(set(range(n, n+5)))
+                        list_of_straight_sets.append(straight_set)
+
+                    straight_hands = [x for x in list_of_potential_straight_hands if x in list_of_straight_sets]
+
+                    if len(straight_hands) >= 1:
+                        highest_hand = (max(map(lambda x: x, straight_hands)))
+
+                        result = []
+                        
+                        for x in range (0, 5):
+                            true_hand = [item for item in potential_sf_hand_set if (highest_hand[x]) in item]
+                            result.append(true_hand)
+
+                        last = [elem if elem else [('Z', '⦿')] for elem in result]
+                        rh = [val for sublist in last for val in sublist]
+
+                        return True, rh
+                    return False, []
+            else:
+                return False, []           
+        return False, []
+
+    def is_straight_Z(self):
+        if ([x[0] for x in self.tuple_hand if (15) in x]):
+            list_without_15 = [item for item in self.tuple_hand if (15) not in item]
+            pure_list = sorted(set([x[0] for x in list_without_15]))
+            #because straight doesn't go up to 15
+            rh = []
+
+            # back_straight_check
+            bs = [2, 3, 4, 5, 14]
+            if (all(x in (pure_list) for x in bs)) is True or sum(map(lambda x: x in pure_list, bs)) == 4:
+                seen = set()
+                keep = []
+                for num, suit in self.tuple_hand:
+                    if num in seen:
+                        continue
+                    else:
+                        seen.add(num)
+                        keep.append((num, suit))
+
+                self.tuple_hand = keep
+                
+                for x in range (0, 5):
+                    true_hand = [item for item in self.tuple_hand if (bs[x]) in item]
+                    rh.append(true_hand)
+            
+                rh = [elem if elem else [('Z', '⦿')] for elem in rh]
+                rh = [val for sublist in rh for val in sublist]
+                return True, rh
+            
+                suits = [x[-1] for x in rh]
+                data = Counter(suits)
+                potential_sf = self.most_frequent(1)[0]
+
+                if potential_sf[1] == 5:
+                    return True, rh
+                
+                if potential_sf[1] == 4:
+                    sf_hand = [item for item in rh if (potential_sf[0]) in item]
+                    rh = []
+                    for x in range (0, 5):
+                        true_hand = [item for item in sf_hand if (bs[x]) in item]
+                        rh.append(true_hand)
+
+                    rh = [elem if elem else [('Z', '⦿')] for elem in rh]
+                    rh = [val for sublist in rh for val in sublist]
+    
+            else:
+                missing_numbers = [item for item in set(range(1, 15)) if item not in pure_list]
+                
+                list_of_potential_straights = []
+                result = []
+                list_of_potential_straight_hands = []
+                list_of_straight_sets = []
+
+                for x in reversed(range(len(missing_numbers))):
+                    missing_individual_numbers = [(missing_numbers[x])]
+                    potential_straights = list(sorted(missing_individual_numbers + pure_list))
+                    list_of_potential_straights.append(potential_straights)
+
+                for list_of_potential_straights in list_of_potential_straights:
+                    for start_index in range(len(list_of_potential_straights) - 4):
+                        end_index = start_index + 5
+                        sublist = list_of_potential_straights[start_index:end_index]
+                        list_of_potential_straight_hands.append(sublist)
+                
+                for n in range(2, 11):
+                    straight_set = list(set(range(n, n+5)))
+                    list_of_straight_sets.append(straight_set)
+
+                straight_hands = [x for x in list_of_potential_straight_hands if x in list_of_straight_sets]
+
+                if len(straight_hands) >= 1:
+                    highest_hand = (max(map(lambda x: x, straight_hands)))
+                    seen = set()
+                    keep = []
+                    for num, suit in self.tuple_hand:
+                        if num in seen:
+                            continue
+                        else:
+                            seen.add(num)
+                            keep.append((num, suit))
+                            
+                    self.tuple_hand = keep
+                
+                    for x in range (0, 5):
+                        true_hand = [item for item in self.tuple_hand if (highest_hand[x]) in item]
+                        rh.append(true_hand)
+
+                    rh = [elem if elem else [('Z', '⦿')] for elem in rh]
+                    rh = [val for sublist in rh for val in sublist]
+                    return True, rh
+                return False, []
+        return False, []
+
+
 
     def is_flush_Z(self, hand=None):
     #Hand with 4 same suited cards will become "FLUSH"
@@ -157,61 +331,118 @@ class Player:
             return False, []
             
 
-    def is_royal(self):
-        s = self.is_straight()
-        rh = s[1]
-        if s[0]:
-            if self.is_flush(rh) and rh[-1][0] == 10:
-                rh = self.is_flush(rh)[1]
-                return True, rh
-        return False, []
+    def is_top_straight(self):
+
+        sorted(self.tuple_hand, key=lambda card: card[0], reverse=True)
+        is_sf = self.most_frequent(self.get_suits(self.tuple_hand))
+
+        if is_sf[1] >= 5:
+            is_sf_hand_set = [item for item in self.tuple_hand if (is_sf[0]) in item]
+            is_sf_hand = sorted(set([x[0] for x in is_sf_hand_set]))
+
+            rh = [] 
+            bs = [2, 3, 4, 5, 14]
+            
+            if (all(x in (is_sf_hand) for x in bs)) is True:
+                
+                for x in range (0, 5):
+                    true_hand = [item for item in is_sf_hand_set if (bs[x]) in item]
+                    rh.append(true_hand)
+
+                rh = [val for sublist in rh for val in sublist]
+                return True, rh               
+
+            else:
+                list_of_is_straight_hands = []
+                list_of_straight_sets = []
+
+                for start_index in range(len(is_sf_hand) - 4):
+                        end_index = start_index + 5
+                        sublist = is_sf_hand[start_index:end_index]
+                        list_of_is_straight_hands.append(sublist)
+                
+                for n in range(2, 11):
+                    straight_set = list(set(range(n, n+5)))
+                    list_of_straight_sets.append(straight_set)
+
+                straight_hands = [x for x in list_of_is_straight_hands if x in list_of_straight_sets]
+
+                if len(straight_hands) >= 1:
+                    
+                    highest_hand = (max(map(lambda x: x, straight_hands)))
+                    
+                    for x in range (0, 5):
+                        true_hand = [item for item in is_sf_hand_set if (highest_hand[x]) in item]
+                        rh.append(true_hand)
+
+                    rh = [val for sublist in rh for val in sublist]
+
+                    return True, rh
+                return False, []
+        return False, []           
 
     def is_straight(self):
+        pure_list = sorted(set([x[0] for x in self.tuple_hand]))
 
         rh = []
-        
-        if all(x in self.get_number(self.hand) for x in [2, 3, 4, 5, 14]):
+
+        # back_straight_check
+        bs = [2, 3, 4, 5, 14]
+        if (all(x in (pure_list) for x in bs)) is True:
+            seen = set()
+            keep = []
+            for num, suit in self.tuple_hand:
+                if num in seen:
+                    continue
+                else:
+                    seen.add(num)
+                    keep.append((num, suit))
+                
+            self.tuple_hand = keep
+            for x in range (0, 5):
+                true_hand = [item for item in self.tuple_hand if (bs[x]) in item]
+                rh.append(true_hand)
+
+            rh = [val for sublist in rh for val in sublist]
             return True, rh
-        
-        d = (sorted(set([x[0] for x in self.tuple_hand])))
-
-        result = []
-        for n in range(0, 11):
-
-            temp_set = list(set(range(n, n+5)))
-            if set(temp_set).issubset(d) is True:
-                result = (temp_set)
-            else:
-                return False, []
-            
-        a = tuple(result)
-
-        for x in a:
-            c = [item for item in self.tuple_hand if (x) in item]
-            [thing] = c; ('(' +str(thing) + ')')
-            rh.append(thing)
-
-            return True, rh
-        return False, []
     
-  ##def is_straight(self):
-  ##      self._tuple_hand.sort(key=lambda card: card[0], reverse=True)
-  ##      index, rh = 0, []
-  ##
-  ##      if all(x in self.get_number(self.hand) for x in [2, 3, 4, 5, 14]):
-  ##          return True, rh
-  ##
-  ##      while self.maximum > 5 and index < 8:
-  ##          if self.maximum > self._tuple_hand[index][0] > (self.maximum - 5):
-  ##              rh.append(self._tuple_hand[index])
-  ##
-  ##          if index == 7 and len(rh) >= 5:
-  ##              return True, rh
-  ##          elif index == 7:
-  ##              self.maximum -= 1
-  ##              index = 0
-  ##          index += 1
-  ##      return False, []
+        else:
+            list_of_is_straight_hands = []
+            list_of_straight_sets = []
+
+            for start_index in range(len(pure_list) - 4):
+                    end_index = start_index + 5
+                    sublist = pure_list[start_index:end_index]
+                    list_of_is_straight_hands.append(sublist)
+            
+            for n in range(2, 11):
+                straight_set = list(set(range(n, n+5)))
+                list_of_straight_sets.append(straight_set)
+
+            straight_hands = [x for x in list_of_is_straight_hands if x in list_of_straight_sets]
+
+            if len(straight_hands) >= 1:
+                seen = set()
+                keep = []
+                for num, suit in self.tuple_hand:
+                    if num in seen:
+                        continue
+                    else:
+                        seen.add(num)
+                        keep.append((num, suit))
+                    
+                self.tuple_hand = keep
+                
+                highest_hand = (max(map(lambda x: x, straight_hands)))
+                
+                for x in range (0, 5):
+                    true_hand = [item for item in self.tuple_hand if (highest_hand[x]) in item]
+                    rh.append(true_hand)
+
+                rh = [val for sublist in rh for val in sublist]
+
+                return True, rh
+            return False, []
 
     def is_flush(self, hand=None):
         if hand is None:
@@ -284,74 +515,90 @@ class Player:
         
     def evaluate_hand(self):
 
-        is_flush_Z, flush_hand = self.is_flush_Z()
-        if is_flush_Z:
-            return "FLUSH", flush_hand, 7.5
+        e_straight = [11, 12, 13, 14, 15]
+        r_straight = [10, 11, 12, 13, 14]
+        b_straight = [2, 3, 4, 5, 14]
 
+        is_top_straight_Z, top_straight_Z = self.is_top_straight_Z()
+        if is_top_straight_Z:
+            if (list(x[0] for x in  top_straight_Z)) == e_straight:
+                return "EMPEROR STRAIGHT FLUSH", top_straight_Z, 15          
+            if (list(x[0] for x in  top_straight_Z)) == r_straight or sum(map(lambda x: x in (list(x[0] for x in  top_straight_Z)), r_straight)) == 4:
+                return "ROYAL STRAIGHT FLUSH", top_straight_Z, 14
+            if (list(x[0] for x in  top_straight_Z)) == b_straight or sum(map(lambda x: x in (list(x[0] for x in  top_straight_Z)), b_straight)) == 4:
+                return "BACK STRAIGHT FLUSH", top_straight_Z, 12
+            else:
+                return "STRAIGHT FLUSH", top_straight_Z, 11          
+        
+        is_straight_Z, straight_Z = self.is_straight_Z()
+        if is_straight_Z:
+            if (list(x[0] for x in  straight_Z)) == r_straight or sum(map(lambda x: x in (list(x[0] for x in  straight_Z)), r_straight)) == 4:
+                return "ROYAL STRAIGHT", straight_Z, 9
+            if (list(x[0] for x in  straight_Z)) == b_straight or sum(map(lambda x: x in (list(x[0] for x in  straight_Z)), b_straight)) == 4:
+                return "BACK STRAIGHT", straight_Z, 8
+            else:
+                return "STRAIGHT", straight_Z, 7
+
+                
         is_4_kind_Z, four_of_a_kind_Z = self.is_4_kind_Z()
         if is_4_kind_Z:
-            return "FIVE OF A KIND", four_of_a_kind_Z, 12.5
-
-        is_3_kind_Z, three_kind_Z = self.is_3_kind_Z()
-        if is_3_kind_Z:
-            return "FOUR OF A KIND", three_kind_Z, 10.5
+            return "FIVE OF A KIND", four_of_a_kind_Z, 13
 
         is_two_pair_Z, two_pair_Z = self.is_two_pair_Z()
         if is_two_pair_Z:
-            if self.most_frequent([x[1] for x in two_pair_Z])[1] == 1:
-                return "FULL HOUSE", two_pair_Z, 9.5
-            else:
-                return "HOUSE", two_pair_Z, 8.5
+            return "FULL HOUSE", two_pair_Z, 8
+            
+        is_3_kind_Z, three_kind_Z = self.is_3_kind_Z()
+        if is_3_kind_Z:
+            return "FOUR OF A KIND", three_kind_Z, 10
+
+        is_flush_Z, flush_hand = self.is_flush_Z()
+        if is_flush_Z:
+            return "FLUSH", flush_hand, 9
 
         is_pair_Z, pair_Z = self.is_pair_Z()
         if is_pair_Z:
-            return "THREE OF A KIND", pair_Z, 6.5
+            return "THREE OF A KIND", pair_Z, 4
 
         is_high_Z, high_Z = self.is_high_Z()
         if is_high_Z:
-            return "ONE PAIR", high_Z, 1.5
-        
-        royal_hand = self.is_royal()
-        if royal_hand[0] == {10, 11, 12, 13, 14}:
-            return "ROYAL STRAIGHT FLUSH", royal_hand, 15
+            return "ONE PAIR", high_Z, 1
 
+
+        is_top_straight, top_straight = self.is_top_straight()
+        if is_top_straight:          
+            if (list(x[0] for x in  top_straight)) == r_straight:
+                return "ROYAL STRAIGHT FLUSH", top_straight, 14
+            if (list(x[0] for x in  top_straight)) == b_straight:
+                return "BACK STRAIGHT FLUSH", top_straight, 12
+            else:
+                return "STRAIGHT FLUSH", top_straight, 11
+            
         is_five_of_a_kind, five_of_a_kind = self.is_num_of_a_kind(5)
         if is_five_of_a_kind:
             return "FIVE OF A KIND", five_of_a_kind, 13
-
+        
         is_straight, straight_hand = self.is_straight()
-        is_flush, flush_hand = self.is_flush()
-        if is_straight and is_flush:
-            if straight_hand == (2, 3, 4, 5, 14):
-                return "BACK STRAIGHT FLUSH", straight_hand, 14
+        if is_straight:
+            if (list(x[0] for x in  straight_hand)) == r_straight:
+                return "ROYAL STRAIGHT", straight_hand, 9
+            if (list(x[0] for x in  straight_hand)) == b_straight:
+                return "BACK STRAIGHT", straight_hand, 8
             else:
-                return "STRAIGHT FLUSH", straight_hand, 12
-
+                return "STRAIGHT", straight_hand, 7           
+        
         is_four_of_a_kind, four_of_a_kind = self.is_num_of_a_kind(4)
         if is_four_of_a_kind:
-            return "FOUR OF A KIND", four_of_a_kind, 11
+            return "FOUR OF A KIND", four_of_a_kind, 10
 
+        is_flush, flush_hand = self.is_flush()
         if is_flush:
             return "FLUSH", flush_hand, 9
 
         is_house, house_hand = self.is_house()
-        if is_house:
-            most_repeats = self.most_frequent([x[1] for x in house_hand])[1]
-            if most_repeats == 1:
-                return "FULL HOUSE", house_hand, 10
-            else:
-                return "HOUSE", house_hand, 8
-
         
-        if is_straight:
-            if straight_hand == {10, 11, 12, 13, 14}:
-                return "MOUNTAIN", straight_hand, 7
-
-            elif straight_hand == {2, 3, 4, 5, 14}:
-                return "BACK STRAIGHT", straight_hand[1], 6
-
-            else:
-                return "STRAIGHT", straight_hand[1], 5
+        if is_house:
+            return "FULL HOUSE", house_hand, 8
 
         is_three_of_a_kind, three_of_a_kind = self.is_num_of_a_kind(3)
         if is_three_of_a_kind:
